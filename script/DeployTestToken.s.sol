@@ -6,10 +6,10 @@ import {TestToken} from "../src/TestToken.sol";
 
 contract DeployTestToken is Script {
 
-    function run() public returns(address) {
+    function run(string memory name, string memory symbol, uint256 amount, uint8 decimal) public returns(TestToken) {
         vm.startBroadcast();
-        TestToken testToken = new TestToken("Test","TST",700000);
+        TestToken testToken = new TestToken(name,symbol,amount,decimal);
         vm.stopBroadcast();
-        return address(testToken);
+        return testToken;
     }
 }
