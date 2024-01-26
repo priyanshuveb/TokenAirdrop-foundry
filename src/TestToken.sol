@@ -10,7 +10,6 @@ contract TestToken is ERC20 {
     uint8 decimalValue;
     address immutable OWNER;
     modifier onlyOwner() {
-        // require(msg.sender == i_owner);
         if (msg.sender != OWNER) revert TestToken__NotOwner();
         _;
     }
