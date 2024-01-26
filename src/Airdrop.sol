@@ -4,8 +4,7 @@ pragma solidity ^0.8.20;
 
 // onlyOwner
 // Whitelisted addresses
-// Send tokens in batch
-// or Claim airdrop
+// Claim airdrop
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 error Airdrop_NotOwner();
