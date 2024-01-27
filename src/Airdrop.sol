@@ -13,6 +13,7 @@ error Airdrop_InvalidStartTimestamp();
 error Airdrop_MismatchUsersToAmountLength();
 error Airdrop_NotEligible();
 error Airdrop_UserHasClaimed();
+error Airdrop_ClaimDeadlinePassed();
 
 contract Airdrop {
     IERC20 immutable private TOKEN_CONTRACT;
@@ -74,6 +75,9 @@ contract Airdrop {
 
     // view/pure functions
     function checkEligibleAmount(address userAddress) public view returns (uint256) {
+        if(block.timestamp > endAirdropTimestamp) revert Airdrop_ClaimDeadlinePassed();
         return usersToAmount[userAddress];
     }
+
+    function sendBatchAmount() external onlyOwner 
 }
