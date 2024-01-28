@@ -14,15 +14,18 @@ error Airdrop_MismatchUsersToAmountLength();
 error Airdrop_NotEligible();
 error Airdrop_UserHasClaimed();
 error Airdrop_ClaimDeadlinePassed();
+error Airdrop_InvalidTimestampValues();
+error Airdrop_ClaimNotStartedOrExpired();
 
 contract Airdrop {
-    IERC20 immutable private TOKEN_CONTRACT;
+    IERC20 private immutable TOKEN_CONTRACT;
     address private owner;
     uint256 private startAirdropTimestamp;
     uint256 private endAirdropTimestamp;
-    // address[] public eligibleUsers;
-    mapping(address => bool) hasClaimed;
-    mapping(address => uint256) usersToAmount;
+    address[] public eligibleUsers;
+    address[] private usersNotClaimed;
+    mapping(address => bool) private hasClaimed;
+    mapping(address => uint256) private usersToAmount;
 
     modifier onlyOwner() {
         if (msg.sender != owner) revert Airdrop_NotOwner();
@@ -38,13 +41,35 @@ contract Airdrop {
         owner = _owner;
     }
 
-    function setStartAirdropTimestamp(uint256 _startAirdropTimestamp) external onlyOwner {
+    function setAirdropTimeline(
+        uint256 _startAirdropTimestamp,
+        uint256 _endAirdropTimestamp
+    ) external onlyOwner {
+        if (
+            startAirdropTimestamp < block.timestamp ||
+            _endAirdropTimestamp < _startAirdropTimestamp
+        ) revert Airdrop_InvalidTimestampValues();
+        startAirdropTimestamp = _startAirdropTimestamp;
+        // if (
+        //     endAirdropTimestamp < startAirdropTimestamp ||
+        //     startAirdropTimestamp == 0
+        // ) revert Airdrop_InvalidEndTimestamp();
+        endAirdropTimestamp = _endAirdropTimestamp;
+    }
+
+    function doAirdrop() internal {}
+
+    function setStartAirdropTimestamp(
+        uint256 _startAirdropTimestamp
+    ) external onlyOwner {
         if (startAirdropTimestamp < block.timestamp)
             revert Airdrop_InvalidStartTimestamp();
         startAirdropTimestamp = _startAirdropTimestamp;
     }
 
-    function setEndAirdropTimestamp(uint256 _endAirdropTimestamp) external onlyOwner{
+    function setEndAirdropTimestamp(
+        uint256 _endAirdropTimestamp
+    ) external onlyOwner {
         if (
             endAirdropTimestamp < startAirdropTimestamp ||
             startAirdropTimestamp == 0
@@ -56,7 +81,7 @@ contract Airdrop {
         address[] memory _eligibleUsers,
         uint256[] memory _usersAmount
     ) external onlyOwner {
-        // eligibleUsers = _eligibleUsers;
+        eligibleUsers = _eligibleUsers;
         uint256 numberOfUsers = _eligibleUsers.length;
         if (numberOfUsers != _usersAmount.length)
             revert Airdrop_MismatchUsersToAmountLength();
@@ -67,17 +92,34 @@ contract Airdrop {
     }
 
     function claim() external {
+        if (block.timestamp < startAirdropTimestamp || endAirdropTimestamp < block.timestamp)
+            revert Airdrop_ClaimNotStartedOrExpired();
         uint256 amount = checkEligibleAmount(msg.sender);
-        if(amount == 0) revert Airdrop_NotEligible();
-        if(!hasClaimed[msg.sender]) revert Airdrop_UserHasClaimed();
-        TOKEN_CONTRACT.transferFrom(owner,msg.sender,amount);
+        if (amount == 0) revert Airdrop_NotEligible();
+        if (!hasClaimed[msg.sender]) revert Airdrop_UserHasClaimed();
+        TOKEN_CONTRACT.transferFrom(address(this), msg.sender, amount);
+    }
+
+    // For the users who didn't claim their airpdrop, but with 50% penalty
+    function sendBatchAmountWithPenalty() external onlyOwner {
+        for (uint i = 0; i > eligibleUsers.length; i++) {
+            if (!hasClaimed[eligibleUsers[i]]) {}
+        }
     }
 
     // view/pure functions
-    function checkEligibleAmount(address userAddress) public view returns (uint256) {
-        if(block.timestamp > endAirdropTimestamp) revert Airdrop_ClaimDeadlinePassed();
+    function checkEligibleAmount(
+        address userAddress
+    ) public view returns (uint256) {
         return usersToAmount[userAddress];
     }
 
-    function sendBatchAmount() external onlyOwner 
+    function claimStartTime() view external returns(uint256){
+        return startAirdropTimestamp;
+    }
+
+    function claimEndTime() view external returns(uint256) {
+        return endAirdropTimestamp;
+    }
 }
+
