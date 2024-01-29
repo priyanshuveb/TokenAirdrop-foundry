@@ -56,7 +56,7 @@ contract Airdrop {
         // ) revert Airdrop_InvalidEndTimestamp();
         endAirdropTimestamp = _endAirdropTimestamp;
     }
-
+    // To initiate the airdrop and assign parameters
     function doAirdrop() internal {}
 
     function setStartAirdropTimestamp(
@@ -113,6 +113,7 @@ contract Airdrop {
     ) public view returns (uint256) {
         return usersToAmount[userAddress];
     }
+
 
     function claimStartTime() view external returns(uint256){
         return startAirdropTimestamp;
