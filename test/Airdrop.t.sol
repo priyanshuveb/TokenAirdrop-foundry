@@ -154,5 +154,10 @@ contract AirdropTest is Test {
         airdropContract.claim();
     }
 
-    // function test_CheckELigibleAmount() external {}
+    function test_CheckELigibleAmountIsCorrect() external {
+        vm.prank(RILEY);
+        airdropContract.setUsersAmount(users, amounts);
+        uint256 eligibleAmount = airdropContract.checkEligibleAmount(users[1]);
+        assertEq(eligibleAmount,amounts[1]);
+    }
 }
