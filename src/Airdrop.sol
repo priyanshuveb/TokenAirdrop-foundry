@@ -7,10 +7,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /// @notice Throws when restricted functions are called by a user other than the owner of Airdrop
 error NotOwner();
 /// @notice Throws when number of users and number of amounts don't match
-error MismatchUsersToAmountLength(
-    uint256 userListLength,
-    uint256 amountListLength
-);
+error MismatchUsersToAmountLength(uint256 userListLength, uint256 amountListLength);
 /// @notice Throws when a user not eligible tries to claim the airdrop
 error NotEligible();
 /// @notice Throws when a user who has already claimed the airdrop tries to call the claim()
@@ -33,7 +30,7 @@ contract Airdrop {
     IERC20 private immutable tokenContract;
 
     // Current owner of the contract
-    address private owner;
+    address public owner;
 
     // Airdrop starting timestamp
     uint256 private startTime;
@@ -62,9 +59,9 @@ contract Airdrop {
     /// @param amount The amount of tokens got claimed
     event Claimed(address user, uint256 amount);
 
-    constructor(IERC20 tokenContractAddress, address _owner) {
+    constructor(address tokenContractAddress, address _owner) {
         owner = _owner;
-        tokenContract = tokenContractAddress;
+        tokenContract = IERC20(tokenContractAddress);
     }
 
     /// @notice Transfer the ownsership of this contract to a new address
@@ -77,10 +74,7 @@ contract Airdrop {
     /// @notice Sets the start and end time for the airdrop claim
     /// @param _startTime The start time for the airdrop
     /// @param _endTime The end time for the airdrop
-    function setAirdropTimeline(
-        uint256 _startTime,
-        uint256 _endTime
-    ) external onlyOwner {
+    function setAirdropTimeline(uint256 _startTime, uint256 _endTime) external onlyOwner {
         if (_endTime < _startTime) revert InvalidTimeline(_startTime, _endTime);
         startTime = _startTime;
         endTime = _endTime;
@@ -90,18 +84,17 @@ contract Airdrop {
     /// @param _eligibleUsers The list of the users eligible for the airdrop
     /// @param _eligibleAmounts The list of amounts each user is eligible for
     /// @return Returns true upon successful execution
-    function setUsersAmount(
-        address[] memory _eligibleUsers,
-        uint256[] memory _eligibleAmounts
-    ) external onlyOwner returns (bool) {
+    function setUsersAmount(address[] memory _eligibleUsers, uint256[] memory _eligibleAmounts)
+        external
+        onlyOwner
+        returns (bool)
+    {
         eligibleUsers = _eligibleUsers;
         uint256 numberOfUsers = _eligibleUsers.length;
-        if (numberOfUsers != _eligibleAmounts.length)
-            revert MismatchUsersToAmountLength(
-                numberOfUsers,
-                _eligibleAmounts.length
-            );
-        for (uint i = 0; i < numberOfUsers; i++) {
+        if (numberOfUsers != _eligibleAmounts.length) {
+            revert MismatchUsersToAmountLength(numberOfUsers, _eligibleAmounts.length);
+        }
+        for (uint256 i = 0; i < numberOfUsers; i++) {
             usersToAmount[eligibleUsers[i]] = _eligibleAmounts[i];
             hasClaimed[eligibleUsers[i]];
         }
@@ -117,8 +110,9 @@ contract Airdrop {
         if (amount == 0) revert NotEligible();
         if (hasClaimed[msg.sender]) revert UserHasClaimed();
         hasClaimed[msg.sender] = true;
-        if (!tokenContract.transferFrom(address(this), msg.sender, amount))
+        if (!tokenContract.transferFrom(address(this), msg.sender, amount)) {
             revert TokenTrasferFailed();
+        }
         emit Claimed(msg.sender, amount);
     }
 
@@ -127,9 +121,7 @@ contract Airdrop {
     /// @notice Checks for the amount of airdrop tokens user is eligible for
     /// @param userAddress The address to check for the airdrop amount
     /// @return Returns the amount of airdrop tokens the user is eligible for
-    function checkEligibleAmount(
-        address userAddress
-    ) public view returns (uint256) {
+    function checkEligibleAmount(address userAddress) public view returns (uint256) {
         return usersToAmount[userAddress];
     }
 

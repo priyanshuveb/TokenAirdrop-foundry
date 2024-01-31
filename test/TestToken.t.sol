@@ -23,7 +23,7 @@ contract TestTokenTest is Test {
         assertEq(balance, 1 * 10 ** 6);
     }
 
-    function test_transferToAlice() external {
+    function test_TransferToAlice() external {
         uint256 transferAmount = 1e2;
         vm.prank(msg.sender);
         testToken.transfer(ALICE, transferAmount);
@@ -63,7 +63,7 @@ contract TestTokenTest is Test {
 
     function test_BurnToken() external {
         uint256 tokensToBurn = 5 * 10 ** 5;
-        uint initialTotalSupply = testToken.totalSupply();
+        uint256 initialTotalSupply = testToken.totalSupply();
         vm.prank(msg.sender);
         testToken.burn(tokensToBurn);
         uint256 totalSupplyAfterBurn = testToken.totalSupply();

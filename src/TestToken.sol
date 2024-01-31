@@ -14,12 +14,7 @@ contract TestToken is ERC20 {
         _;
     }
 
-    constructor(
-        string memory name,
-        string memory symbol,
-        uint256 totalSupply,
-        uint8 decimal
-    ) ERC20(name, symbol) {
+    constructor(string memory name, string memory symbol, uint256 totalSupply, uint8 decimal) ERC20(name, symbol) {
         decimalValue = decimal;
         OWNER = msg.sender;
         _mint(msg.sender, totalSupply);

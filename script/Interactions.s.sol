@@ -7,6 +7,7 @@ import {TestToken} from "../src/TestToken.sol";
 
 contract Interactions is Script {
     TestToken testToken;
+
     function run() public {
         testToken = TestToken(0x5FbDB2315678afecb367f032d93F642f64180aa3);
         getTotalSupply();
@@ -14,11 +15,11 @@ contract Interactions is Script {
 
     function getTotalSupply() public view {
         uint256 totalSupply = testToken.totalSupply();
-        console.log('total supply %s',totalSupply);
+        console.log("total supply %s", totalSupply);
     }
 
     function getBalanceOf(address user) public view {
         uint256 balance = testToken.balanceOf(user);
-        console.log('balance of user %s is %s',user,balance);
+        console.log("balance of user %s is %s", user, balance);
     }
 }
