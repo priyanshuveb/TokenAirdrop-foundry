@@ -104,13 +104,13 @@ contract Airdrop {
     /// @notice User can call this function to claim airdrop if eligible
     /// @dev Will revert if a user who is not eligible or has already claimed tries to call this function
     function claim() external {
-        if (endTime < block.timestamp) revert ClaimExpired();
-        if (startTime > block.timestamp) revert ClaimNotStarted();
+        if (endTime <= block.timestamp) revert ClaimExpired();
+        if (startTime >= block.timestamp) revert ClaimNotStarted();
         uint256 amount = checkEligibleAmount(msg.sender);
         if (amount == 0) revert NotEligible();
         if (hasClaimed[msg.sender]) revert UserHasClaimed();
         hasClaimed[msg.sender] = true;
-        if (!tokenContract.transferFrom(address(this), msg.sender, amount)) {
+        if (!tokenContract.transferFrom(owner, msg.sender, amount)) {
             revert TokenTrasferFailed();
         }
         emit Claimed(msg.sender, amount);

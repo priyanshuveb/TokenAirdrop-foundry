@@ -9,6 +9,7 @@ error TestToken__NotOwner();
 contract TestToken is ERC20 {
     uint8 decimalValue;
     address immutable OWNER;
+
     modifier onlyOwner() {
         if (msg.sender != OWNER) revert TestToken__NotOwner();
         _;
