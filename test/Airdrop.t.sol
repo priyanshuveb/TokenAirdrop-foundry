@@ -12,15 +12,25 @@ import {DeployAirdrop} from "../script/DeployAirdrop.s.sol";
 contract AirdropTest is Test {
     TestToken tokenContract;
     Airdrop airdropContract;
+
+    uint256 initialTokenBal = 1 * 10 ** 7;
+    uint256 startTime = block.timestamp + 10;
+    uint256 endTime = block.timestamp + 10000;
+    uint256[] amounts = [700000, 500000];
+
     address ALICE = makeAddr("alice");
     address RILEY = makeAddr("riley");
     address DEREK = makeAddr("derek");
+    address[] users = [RILEY, ALICE];
 
     function setUp() external {
         DeployTestToken deployTestToken = new DeployTestToken();
         tokenContract = deployTestToken.run("GameStop", "GSTP", 1 * 10 ** 8, 18);
         DeployAirdrop deployAirdrop = new DeployAirdrop();
         airdropContract = deployAirdrop.run(address(tokenContract), RILEY);
+
+        vm.prank(msg.sender);
+        tokenContract.transfer(RILEY, initialTokenBal);
     }
 
     function test_TransferOwnership() external {
@@ -44,18 +54,11 @@ contract AirdropTest is Test {
 
     function test_RevertIfInvalidTimeline() external {
         vm.prank(RILEY);
-        vm.expectRevert(abi.encodeWithSelector(InvalidTimeline.selector, 1800, 1500));
-        airdropContract.setAirdropTimeline(1800, 1500);
+        vm.expectRevert(abi.encodeWithSelector(InvalidTimeline.selector, endTime, startTime));
+        airdropContract.setAirdropTimeline(endTime, startTime);
     }
 
     function test_SetUsersAmount() external {
-        // memory arrays cannot be dynamic
-        address[] memory users = new address[](2);
-        uint256[] memory amounts = new uint256[](2);
-        users[0] = RILEY;
-        users[1] = ALICE;
-        amounts[0] = 700000;
-        amounts[1] = 500000;
         vm.prank(ALICE);
         vm.expectRevert(NotOwner.selector);
         airdropContract.setUsersAmount(users, amounts);
@@ -65,12 +68,8 @@ contract AirdropTest is Test {
     }
 
     function test_RevertIfMismatchedUsersAndAmounts() external {
-        address[] memory users = new address[](2);
-        uint256[] memory amounts = new uint256[](3);
-        users[0] = RILEY;
-        users[1] = ALICE;
-        amounts[0] = 700000;
-        amounts[1] = 500000;
+        // Adding another user to the users array
+        users.push(DEREK);
         vm.prank(RILEY);
         vm.expectRevert(abi.encodeWithSelector(MismatchUsersToAmountLength.selector, users.length, amounts.length));
         assert(!airdropContract.setUsersAmount(users, amounts));
@@ -78,23 +77,14 @@ contract AirdropTest is Test {
 
     function test_Claim() external {
         vm.prank(RILEY);
-        airdropContract.setAirdropTimeline(block.timestamp + 10, block.timestamp + 10000);
-
-        address[] memory users = new address[](2);
-        uint256[] memory amounts = new uint256[](2);
-        users[0] = RILEY;
-        users[1] = ALICE;
-        amounts[0] = 700000;
-        amounts[1] = 500000;
+        airdropContract.setAirdropTimeline(startTime, endTime);
 
         // vm.roll(50); // inclrease block number by 50
         skip(200); // increase block.timestamp by 200
 
-        vm.prank(msg.sender);
-        tokenContract.transfer(RILEY, 10000000);
-
+        uint256 amountToApprove = 1 * 10 ** 7;
         vm.startPrank(RILEY);
-        tokenContract.approve(address(airdropContract), 10000000);
+        tokenContract.approve(address(airdropContract), amountToApprove);
         airdropContract.setUsersAmount(users, amounts);
         vm.stopPrank();
         vm.prank(ALICE);
@@ -106,22 +96,17 @@ contract AirdropTest is Test {
 
     function test_RevertIfNotEligibleForClaim() external {
         vm.prank(RILEY);
-        airdropContract.setAirdropTimeline(block.timestamp + 10, block.timestamp + 10000);
-
-        address[] memory users = new address[](2);
-        uint256[] memory amounts = new uint256[](2);
-        users[0] = RILEY;
-        users[1] = ALICE;
-        amounts[0] = 700000;
-        amounts[1] = 500000;
+        airdropContract.setAirdropTimeline(startTime, endTime);
 
         // vm.roll(50); // inclrease block number by 50
-        skip(200); // increase block.timestamp by 200
-        vm.prank(msg.sender);
-        tokenContract.transfer(RILEY, 10000000);
+
+        // increase block.timestamp by 200
+        skip(200);
+
+        uint256 amountToApprove = 1 * 10 ** 7;
 
         vm.startPrank(RILEY);
-        tokenContract.approve(address(airdropContract), 10000000);
+        tokenContract.approve(address(airdropContract), amountToApprove);
         airdropContract.setUsersAmount(users, amounts);
         vm.stopPrank();
 
@@ -132,7 +117,7 @@ contract AirdropTest is Test {
 
     function test_RevertIfClaimOutsideTimeline() external {
         vm.prank(RILEY);
-        airdropContract.setAirdropTimeline(block.timestamp + 10, block.timestamp + 10000);
+        airdropContract.setAirdropTimeline(startTime, endTime);
 
         vm.prank(DEREK);
         vm.expectRevert(ClaimNotStarted.selector);
@@ -147,23 +132,17 @@ contract AirdropTest is Test {
 
     function test_RevertIfAlreadyClaimed() external {
         vm.prank(RILEY);
-        airdropContract.setAirdropTimeline(block.timestamp + 10, block.timestamp + 10000);
-
-        address[] memory users = new address[](2);
-        uint256[] memory amounts = new uint256[](2);
-        users[0] = RILEY;
-        users[1] = ALICE;
-        amounts[0] = 700000;
-        amounts[1] = 500000;
+        airdropContract.setAirdropTimeline(startTime, endTime);
 
         // vm.roll(50); // inclrease block number by 50
-        skip(200); // increase block.timestamp by 200
 
-        vm.prank(msg.sender);
-        tokenContract.transfer(RILEY, 10000000);
+        // Increase block.timestamp by 200
+        skip(200);
+
+        uint256 amountToApprove = 1 * 10 ** 7;
 
         vm.startPrank(RILEY);
-        tokenContract.approve(address(airdropContract), 10000000);
+        tokenContract.approve(address(airdropContract), amountToApprove);
         airdropContract.setUsersAmount(users, amounts);
         vm.stopPrank();
 
@@ -175,7 +154,5 @@ contract AirdropTest is Test {
         airdropContract.claim();
     }
 
-    function test_CheckELigibleAmount() external {
-        
-    }
+    // function test_CheckELigibleAmount() external {}
 }
