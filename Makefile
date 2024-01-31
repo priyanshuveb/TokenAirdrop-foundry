@@ -1,7 +1,16 @@
 -include .env
 
-deploy-anvil:
-	forge script script/DeployTestToken.s.sol:DeployTestToken --rpc-url $(RPC_URL_ANVIL)  --constructor-args "GameStop" "GSTP" 1000000 18 --private-key $(PRIVATE_KEY_ANVIL) --broadcast -vvv
+build:; forge build
 
 interact:
 		forge script script/Interactions.s.sol:Interactions --rpc-url $(RPC_URL_ANVIL) --private-key $(PRIVATE_KEY_ANVIL) --broadcast -vvv
+
+deploy-anvil:
+	forge script script/DeployTestToken.s.sol:DeployTestToken "GameStop" "GSTP" 100000000 18 \
+	--rpc-url $(RPC_URL_ANVIL) --private-key $(PRIVATE_KEY_ANVIL) --broadcast -vvv \
+	--sig 'run(string,string,uint256,uint8)'
+
+deploy-sepolia:
+	forge script script/DeployTestToken.s.sol:DeployTestToken "GameStop" "GSTP" 100000000 18 \
+	--rpc-url $(RPC_URL_SEPOLIA) --private-key $(PRIVATE_KEY_SEPOLIA) --broadcast \
+	--sig 'run(string,string,uint256,uint8)' -vvvv --verify --etherscan-api-key $(ETHERSCAN_API_KEY)
