@@ -158,6 +158,6 @@ contract AirdropTest is Test {
         vm.prank(RILEY);
         airdropContract.setUsersAmount(users, amounts);
         uint256 eligibleAmount = airdropContract.checkEligibleAmount(users[1]);
-        assertEq(eligibleAmount,amounts[1]);
+        assertEq(eligibleAmount, amounts[1]);
     }
 }
