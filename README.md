@@ -2,9 +2,9 @@
 
 ### Requirements
 - git
-  - Check if you git installed by git --version
+  - Check if you have git installed by ```git --version```
 - foundry
-  - Check if you have foundry installed by forge --version
+  - Check if you have foundry installed by ```forge --version```
 
 ### Quickstart
 ```bash
