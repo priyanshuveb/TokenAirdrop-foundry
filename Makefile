@@ -7,10 +7,10 @@ interact:
 
 deploy-anvil:
 	forge script script/DeployTestToken.s.sol:DeployTestToken "GameStop" "GSTP" 100000000 18 \
-	--rpc-url $(RPC_URL_ANVIL) --private-key $(PRIVATE_KEY_ANVIL) --broadcast -vvv \
+	--rpc-url anvil --private-key $(PRIVATE_KEY_ANVIL) --broadcast -vvv \
 	--sig 'run(string,string,uint256,uint8)'
 
 deploy-sepolia:
 	forge script script/DeployTestToken.s.sol:DeployTestToken "GameStop" "GSTP" 100000000 18 \
-	--rpc-url $(RPC_URL_SEPOLIA) --private-key $(PRIVATE_KEY_SEPOLIA) --broadcast \
-	--sig 'run(string,string,uint256,uint8)' -vvvv --verify --etherscan-api-key $(ETHERSCAN_API_KEY)
+	--rpc-url sepolia --private-key $(PRIVATE_KEY_SEPOLIA) --broadcast \
+	--sig 'run(string,string,uint256,uint8)' -vvvv --verify --etherscan-api-key sepolia 
