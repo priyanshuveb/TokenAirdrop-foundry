@@ -1,3 +1,13 @@
+# Token Airdrop
+
+The repo contains two contracts, one is ERC20-Token and second is the Airdrop contract for the forementioned token.
+
+The repo goes through following learnings about foundry:
+- Writing scripts to deploy contracts
+- Write intensive test cases
+- Writing scripts to interact with your deployed contracts
+- To read input from an external file for a funcion argument
+
 ## Getting Started
 
 ### Requirements
