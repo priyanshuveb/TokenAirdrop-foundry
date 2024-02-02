@@ -62,3 +62,16 @@ contract Transfer is Script, TokenInstance {
         vm.stopBroadcast();
     }
 }
+
+contract GiveAllowanceToAirdropContract is Script, TokenInstance {
+    uint256 amount = 1*10**8;
+    address to = 0xd3E5c6b50f1e7B36Ce2923f3f72a2B01172282eC;
+    function run() external {
+        giveAllowance();
+    }
+
+    function giveAllowance() internal {
+        vm.broadcast();
+        testToken.approve(to, amount);
+    }
+}
