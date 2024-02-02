@@ -1,7 +1,6 @@
 # Token Airdrop
 
-The repo contains two contracts, one is ERC20-Token and second is the Airdrop contract for the forementioned token.<br>
-After deploying this successfully you will have a token contract and its aidrop contract ready
+The repo contains two contracts, one is ERC20-Token and second is the Airdrop contract for the forementioned token. After deploying this successfully you will have a token contract and its aidrop contract ready
 
 <br>
 
