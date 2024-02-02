@@ -56,7 +56,7 @@ make interact-token-sepolia
 ```bash
 make interact-airdrop-sepolia
 ```
-Note: You can change the parameters in the makefile accordingly to interract with different functions
+Note: You can change the parameters in the makefile accordingly to interact with different functions
 
 
 ## Estimate Gas
