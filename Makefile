@@ -2,9 +2,6 @@
 
 build:; forge build
 
-interact:
-		forge script script/Interactions.s.sol:Interactions --rpc-url $(RPC_URL_ANVIL) --private-key $(PRIVATE_KEY_ANVIL) --broadcast -vvv
-
 deploy-anvil:
 	forge script script/DeployTestToken.s.sol:DeployTestToken "GameStop" "GSTP" 100000000 18 \
 	--rpc-url anvil --private-key $(PRIVATE_KEY_ANVIL) --broadcast -vvv \
@@ -22,3 +19,6 @@ deploy-airdrop-sepolia:
 
 interact-airdrop-sepolia:
 	forge script script/InteractionAirdrop.s.sol:SetAirdropTimeline --rpc-url sepolia --private-key $(PRIVATE_KEY_SEPOLIA) --broadcast -vvvv
+
+interact-token-sepolia:
+	forge script script/InteractionToken.s.sol:GiveAllowanceToAirdropContract --rpc-url sepolia --private-key $(PRIVATE_KEY_SEPOLIA) --broadcast -vvvv
