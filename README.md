@@ -49,7 +49,15 @@ forge coverage
 
 ## Scripts
 - Token
+```bash
+make interact-token-sepolia
+```
 - Airdrop
+```bash
+make interact-airdrop-sepolia
+```
+Note: You can change the parameters in the makefile accordingly to interract with different functions
+
 
 ## Estimate Gas
 ```bash
